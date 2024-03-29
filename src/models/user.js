@@ -18,7 +18,7 @@ const userSchema = new Schema({
   rol: {
     type: String,
     require: [true, "el rol es reqerido"],
-    default: "usr",
+    default: "adm",
   },
 });
 

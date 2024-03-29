@@ -3,17 +3,10 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { signIn } from "next-auth/react";
-
-import { useSession } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 
 function RegisterPage() {
   const router = useRouter();
-
-  const { data: session, status } = useSession();
-
-  // Verifica si session está definido antes de acceder a session.user.fullname
-  const sessionData = session ? session.user : {};
 
   const usrsModel = {
     email: String(),
@@ -30,11 +23,11 @@ function RegisterPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    await singIn(newUser);
+    await signInM(newUser);
     setNewUser(usrsModel);
   };
 
-  const singIn = async (user) => {
+  const signInM = async (user) => {
     const res = await signIn("credentials", {
       email: user.email,
       password: user.password,
@@ -44,14 +37,15 @@ function RegisterPage() {
     if (res.error) {
       return setError(res.error);
     }
-
-    if (res.ok) {
-      console.log(res.user);
-
-      if (sessionData.rol === "adm") {
-        return router.push("/dashboard/adm");
+    const session = await getSession();
+    if (res.ok && session) {
+      console.log(session.user);
+      if (session.user.rol === "adm") {
+        router.push("/dashboard/adm");
+      } else if (session.user.rol === "usr") {
+        router.push("/dashboard/usr");
       } else {
-        return router.push("/dashboard/usr");
+        router.push("/dashboard");
       }
     }
   };
