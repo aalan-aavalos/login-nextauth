@@ -2,8 +2,13 @@
 
 import axios, { AxiosError } from "axios";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { signIn } from "next-auth/react";
 
 function RegisterPage() {
+  const router = useRouter();
+
   const usrsModel = {
     email: String(),
     password: String(),
@@ -11,7 +16,7 @@ function RegisterPage() {
   };
 
   const [newUser, setNewUser] = useState(usrsModel);
-  const [error, setError] = useState();
+  const [error, setError] = useState(String());
 
   const handleChange = (event) => {
     setNewUser({ ...newUser, [event.target.name]: event.target.value });
@@ -28,7 +33,19 @@ function RegisterPage() {
     try {
       const response = await axios.post("/api/auth/singup", user);
       const data = await response.data;
+
+      // Esto es para que cuando se registre inicie sesion
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: newUser.password,
+        redirect: false,
+      });
+
       console.log("bien", data);
+
+      if (res.ok) {
+        return router.push("/dashboard");
+      }
     } catch (error) {
       if (error instanceof AxiosError) {
         setError(error.response.data.message);

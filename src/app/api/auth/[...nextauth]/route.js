@@ -1,5 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { connectDB } from "@/libs/mongoose";
+import User from "@/models/user";
+import bcript from "bcryptjs";
 
 const handler = NextAuth({
   providers: [
@@ -18,15 +21,39 @@ const handler = NextAuth({
         },
       },
       async authorize(credentials, req) {
-        const user = { id: "1", name: "J Smith", email: "jsmith@example.com" };
-        if (user) {
-          return user;
-        } else {
-          return null;
+        await connectDB();
+        const userFound = await User.findOne({
+          email: credentials.email,
+        }).select("+password");
+        if (!userFound) {
+          throw new Error("Invalid credentials");
         }
+        const passwordMatch = await bcript.compare(
+          credentials.password,
+          userFound.password
+        );
+        if (!passwordMatch) {
+          throw new Error("Invalid credentials");
+        }
+        return userFound;
       },
     }),
   ],
+  callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.user = user;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      session.user = token.user;
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
 });
 
 export { handler as GET, handler as POST };

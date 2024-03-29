@@ -9,11 +9,16 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: [true, "Password is requiered"],
-    select: false,
+    // select: false,
   },
   fullname: {
     type: String,
     required: [true, "Fullname is requiered"],
+  },
+  rol: {
+    type: String,
+    require: [true, "el rol es reqerido"],
+    default: "usr",
   },
 });
 
