@@ -50,11 +50,6 @@ const handler = NextAuth({
       session.user = token.user;
       return session;
     },
-    async signIn({ user }) {
-      // Aquí puedes hacer lo que quieras con los datos de la sesión
-      console.log("Datos de la sesión:", { user });
-      return true; // Continuar con el inicio de sesión
-    },
   },
   pages: {
     signIn: "/login",

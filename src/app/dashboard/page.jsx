@@ -7,14 +7,13 @@ function DashboardPage() {
   const { data: session, status } = useSession();
 
   console.log(session, status);
-
-  // Verifica si session está definido antes de acceder a session.user.fullname
+  
   const sessionData = session ? session.user : "";
 
   return (
     <div>
       <h1>DashboardPage</h1>
-      <h1>{sessionData.fullname}</h1>
+      <h2>{sessionData.fullname}</h2>
       <button
         onClick={() => {
           signOut();
